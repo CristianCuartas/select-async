@@ -5,7 +5,8 @@ class SelectCity extends React.Component {
   state = {
     dataCity: [],
     id: this.props.departmentId,
-    idCountry: this.props.countryId
+    idCountry: this.props.countryId,
+    valueCity: this.props.value
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -19,6 +20,11 @@ class SelectCity extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.departmentId !== prevProps.departmentId) {
+      this.setState({
+        dataCity: [],
+        valueCity: ''
+      });
+      // this.props.value = '';
       this.getDataCitys();
     }
     if (this.props.countryId !== prevProps.countryId) {
@@ -58,7 +64,7 @@ class SelectCity extends React.Component {
       <div>
         <select
           name={this.props.name}
-          value={this.props.value}
+          value={this.state.valueCity}
           className={this.props.className}
           onChange={this.props.onChange}
           onBlur={this.props.onBlur}
