@@ -22,6 +22,14 @@ class FormSelect extends React.Component {
       newValue: ''
     };
   }
+  validate = value => {
+    let error;
+    if (this.state.oldValue !== this.state.newValue) {
+      console.log('Cristian');
+      error = 'Required';
+    }
+    return error;
+  };
   render() {
     const dataResult = {
       countryId: '',
@@ -107,15 +115,37 @@ class FormSelect extends React.Component {
                               Departamento
                               <span className="text-danger">*</span>{' '}
                             </label>
-                            <FielDepartment
+                            <Field
+                              name="departmentId"
+                              component={FielDepartment}
                               oldValueCountryId={this.state.oldValue}
                               newValueCountryId={this.state.newValue}
+                              // validate={this.validate}
+                            ></Field>
+                            {/* <FielDepartment                            
+                              oldValueCountryId={this.state.oldValue}
+                              newValueCountryId={this.state.newValue}
+                              value={values.departmentId}
                               countryId={values.countryId}
+                              onChange={e =>
+                                this.state.oldValue !== this.state.newValue
+                                  ? setFieldValue(
+                                      'departmentId',
+                                      dataResult.departmentId
+                                    )
+                                  : setFieldValue(
+                                      'departmentId',
+                                      e.target.value
+                                    )
+                              }
+                              onBlur={e =>
+                                setFieldTouched('departmentId', true)
+                              }
                               name="departmentId"
                               className={`form-control form-control-sm ${errors.departmentId &&
                                 touched.departmentId &&
                                 'is-invalid'}`}
-                            />
+                            /> */}
                             {/* <SelectDepartment
                               countryId={values.countryId}
                               name="departmentId"
@@ -209,11 +239,36 @@ class FormSelect extends React.Component {
     );
   }
 }
-
-const FielDepartment = props => {  
+const FielDepartment = ({
+  field,
+  form: { errors, touched, setFieldTouched, setFieldValue, values },
+  ...props
+}) => {
+  /* Estado datos de la petición */
   const [dataDepartment, setDataDepartment] = useState([]);
-  async function fetchNewValues(id) {
-    let response = await fetch(
+  /* Petición al API - asíncronico */
+  // async function fetchNewValues(id) {
+  //   try {
+  //     let response = await fetch(
+  //       `http://192.168.20.187:8090/api/sgdea/service/configuration/departments/country/${id}`,
+  //       {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization:
+  //             'Bearer ' +
+  //             'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJjY3VhcnRhcyIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIzMjY2MjAsImF1dGhvcml0aWVzIjpbIlJPTEVfY29tcGFueS5jcmVhdGUiLCJST0xFX2NvbXBhbnkuc2hvdyIsIlJPTEVfY29uZ2xvbWVyYXRlcy5lZGl0IiwiUk9MRV9jb25nbG9tZXJhdGVzLnNob3ciLCJST0xFX2NvbXBhbnkuaW5kZXgiLCJST0xFX2Nvbmdsb21lcmF0ZXMuY3JlYXRlIiwiUk9MRV9jb21wYW55LmRlbGV0ZSIsIlJPTEVfY29uZ2xvbWVyYXRlcy5pbmRleCJdLCJqdGkiOiIzMWNlY2UzYy1jZWNiLTQyZTItYTk1Zi0yOWRjM2E0OWRjZWYiLCJlbmFibGVkIjp0cnVlLCJjbGllbnRfaWQiOiJmcm9udGVuZGFwcCJ9.WvZA9ih45X5yvU4GcZz0wF2hQdam8yW5YoNx_hxfhK-ft8bjO83jCS6uaTH5PfWX9eNkLQ4m429JhwecvqKjlo2eA0iz6XjqdqSGOWCi9_YE_bPsZfA5a_BCsLXhRzQ3t1ICoAjkOML6DF8WYU7ZHGtTPJ4An8apg8ow11eiAzsOSLZ9cwK12Maxpp6ccrv_HMEKhZPLYDo6Id_1jzQmCLEYi1yJlmBOY1PjpA4vPfrkpKs09XLP8QVo3Jb0U1Au4YUiEOkb5o17fehGlGn_Hu0ULIQEfBJ51Ub0KrVrFl7tyqNKkD5vGO9bjVJqCmlQxFDXEL9cO0ORHA29ruZW6A'
+  //         }
+  //       }
+  //     );
+  //     let data = await response.json();
+  //     return data;
+  //   } catch (err) {
+  //     console.log('Error', err);
+  //   }
+  // }
+  const fetchNewValues = id => {
+    fetch(
       `http://192.168.20.187:8090/api/sgdea/service/configuration/departments/country/${id}`,
       {
         method: 'GET',
@@ -221,53 +276,51 @@ const FielDepartment = props => {
           'Content-Type': 'application/json',
           Authorization:
             'Bearer ' +
-            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJjY3VhcnRhcyIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNDE5NDgsImF1dGhvcml0aWVzIjpbIlJPTEVfY29tcGFueS5jcmVhdGUiLCJST0xFX2NvbXBhbnkuc2hvdyIsIlJPTEVfY29uZ2xvbWVyYXRlcy5lZGl0IiwiUk9MRV9jb25nbG9tZXJhdGVzLnNob3ciLCJST0xFX2NvbXBhbnkuaW5kZXgiLCJST0xFX2Nvbmdsb21lcmF0ZXMuY3JlYXRlIiwiUk9MRV9jb21wYW55LmRlbGV0ZSIsIlJPTEVfY29uZ2xvbWVyYXRlcy5pbmRleCJdLCJqdGkiOiJiNDg1MDUyNS1hZDQ2LTRjNTctYjY4Zi04ZjI5OWMyMjA0YjQiLCJlbmFibGVkIjp0cnVlLCJjbGllbnRfaWQiOiJmcm9udGVuZGFwcCJ9.BpwElFYfnAu3JthVf14bOJTQL4HDkosyUMXmX1ihFgIvAmKSBmRK9MTSP30PX-FwT4mWIMPmZ73Rla1i-VYfHVUjmLj7m3O1LGoYuXmeeJZwqhCDmzSEK_RHZcvf72B9ydtEc71SQFxvlFG2_Cc0jcUi3x2AFGi7GSPFQm5ipiSGfdHqBl0WP9eSNmw5tEKEOkbv5FpSeYr_s1mHIo4AQ9oAoS2IOtWHJ96-jun00f7feO4G36cYgt1vVIvkIh47rgoSShHsD2wrjixtnwUx9fgPcyFBJeDKm1Y1dcJ8BaMrtBHLXa5bGWnL6W6zUA7WrT-03NOvvJpigrTOb6rx9Q'
+            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJjY3VhcnRhcyIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIzMjY2MjAsImF1dGhvcml0aWVzIjpbIlJPTEVfY29tcGFueS5jcmVhdGUiLCJST0xFX2NvbXBhbnkuc2hvdyIsIlJPTEVfY29uZ2xvbWVyYXRlcy5lZGl0IiwiUk9MRV9jb25nbG9tZXJhdGVzLnNob3ciLCJST0xFX2NvbXBhbnkuaW5kZXgiLCJST0xFX2Nvbmdsb21lcmF0ZXMuY3JlYXRlIiwiUk9MRV9jb21wYW55LmRlbGV0ZSIsIlJPTEVfY29uZ2xvbWVyYXRlcy5pbmRleCJdLCJqdGkiOiIzMWNlY2UzYy1jZWNiLTQyZTItYTk1Zi0yOWRjM2E0OWRjZWYiLCJlbmFibGVkIjp0cnVlLCJjbGllbnRfaWQiOiJmcm9udGVuZGFwcCJ9.WvZA9ih45X5yvU4GcZz0wF2hQdam8yW5YoNx_hxfhK-ft8bjO83jCS6uaTH5PfWX9eNkLQ4m429JhwecvqKjlo2eA0iz6XjqdqSGOWCi9_YE_bPsZfA5a_BCsLXhRzQ3t1ICoAjkOML6DF8WYU7ZHGtTPJ4An8apg8ow11eiAzsOSLZ9cwK12Maxpp6ccrv_HMEKhZPLYDo6Id_1jzQmCLEYi1yJlmBOY1PjpA4vPfrkpKs09XLP8QVo3Jb0U1Au4YUiEOkb5o17fehGlGn_Hu0ULIQEfBJ51Ub0KrVrFl7tyqNKkD5vGO9bjVJqCmlQxFDXEL9cO0ORHA29ruZW6A'
         }
       }
-    );
-    let data = await response.json();
-    return data;
-  }
+    )
+      .then(response => response.json())
+      .then(data => {
+        setDataDepartment(data);
+      })
+      .catch(err => {
+        console.log('Error', err);
+        setDataDepartment([]);
+      });
+  };
+  /* Valida cambio de ID para realizar la petición maneja la respuesta */
+  // const validateValues = () => {
+  //   if (props.oldValueCountryId !== props.newValueCountryId) {
+  //     fetchNewValues(props.newValueCountryId)
+  //       .then(data => setDataDepartment(data))
+  //       .catch(err => {
+  //         console.log('Error', err);
+  //         setDataDepartment([]);
+  //       });
+  //   }
+  // };
   const validateValues = () => {
     if (props.oldValueCountryId !== props.newValueCountryId) {
-      fetchNewValues(props.newValueCountryId).then(data =>
-        setDataDepartment(data)
-      );
+      setDataDepartment([]);
+      values.departmentId = '';
+      fetchNewValues(props.newValueCountryId);
     }
   };
-  
-  // const {
-  //   values: { countryId },
-  //   setFieldValue
-  // } = useFormikContext();
-  // const [field, meta] = useField(props);
-
-  // const getDerivedStateFromProps = countryId => {
-  //   const [prevCountryId, setPrevCountryId] = useState(null);
-  //   if (countryId !== prevCountryId ) {
-  //     console.log(prevCountryId);
-  //     console.log(countryId);
-  //     fetchNewValues(countryId)
-  //   }
-
-  // };
-  // useLayoutEffect(() => {
-  //   validateValues();
-  // });
+  /* Component Did Update */
   useEffect(() => {
-    // console.log(`old = ${props.oldValueCountryId}`);
-    // console.log(`new = ${props.newValueCountryId}`);
     validateValues();
   }, [props.newValueCountryId]);
+
   return (
     <div>
       {' '}
       <select
-        // name={this.props.name}
-        // value={this.props.values}
-        className={props.className}
-        // onChange={this.props.onChange}
-        // onBlur={this.props.onBlur}
+        onChange={e => setFieldValue('departmentId', e.target.value)}
+        onBlur={e => setFieldTouched('departmentId', true)}
+        className={`form-control form-control-sm ${errors.departmentId &&
+          touched.departmentId &&
+          'is-invalid'}`}
       >
         <option value={''}>-- Seleccione --</option>
         {dataDepartment.map((aux, id) => {
@@ -281,5 +334,84 @@ const FielDepartment = props => {
     </div>
   );
 };
+
+// const FielDepartment = props => {
+//   const [dataDepartment, setDataDepartment] = useState([]);
+
+//   async function fetchNewValues(id) {
+//     try {
+//       let response = await fetch(
+//         `http://192.168.20.187:8090/api/sgdea/service/configuration/departments/country/${id}`,
+//         {
+//           method: 'GET',
+//           headers: {
+//             'Content-Type': 'application/json',
+//             Authorization:
+//               'Bearer ' +
+//               'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJjY3VhcnRhcyIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIzMjY2MjAsImF1dGhvcml0aWVzIjpbIlJPTEVfY29tcGFueS5jcmVhdGUiLCJST0xFX2NvbXBhbnkuc2hvdyIsIlJPTEVfY29uZ2xvbWVyYXRlcy5lZGl0IiwiUk9MRV9jb25nbG9tZXJhdGVzLnNob3ciLCJST0xFX2NvbXBhbnkuaW5kZXgiLCJST0xFX2Nvbmdsb21lcmF0ZXMuY3JlYXRlIiwiUk9MRV9jb21wYW55LmRlbGV0ZSIsIlJPTEVfY29uZ2xvbWVyYXRlcy5pbmRleCJdLCJqdGkiOiIzMWNlY2UzYy1jZWNiLTQyZTItYTk1Zi0yOWRjM2E0OWRjZWYiLCJlbmFibGVkIjp0cnVlLCJjbGllbnRfaWQiOiJmcm9udGVuZGFwcCJ9.WvZA9ih45X5yvU4GcZz0wF2hQdam8yW5YoNx_hxfhK-ft8bjO83jCS6uaTH5PfWX9eNkLQ4m429JhwecvqKjlo2eA0iz6XjqdqSGOWCi9_YE_bPsZfA5a_BCsLXhRzQ3t1ICoAjkOML6DF8WYU7ZHGtTPJ4An8apg8ow11eiAzsOSLZ9cwK12Maxpp6ccrv_HMEKhZPLYDo6Id_1jzQmCLEYi1yJlmBOY1PjpA4vPfrkpKs09XLP8QVo3Jb0U1Au4YUiEOkb5o17fehGlGn_Hu0ULIQEfBJ51Ub0KrVrFl7tyqNKkD5vGO9bjVJqCmlQxFDXEL9cO0ORHA29ruZW6A'
+//           }
+//         }
+//       );
+//       let data = await response.json();
+//       return data;
+//     } catch (err) {
+//       console.log('Error', err);
+//       setDataDepartment([]);
+//     }
+//   }
+//   const validateValues = () => {
+//     if (props.oldValueCountryId !== props.newValueCountryId) {
+//       fetchNewValues(props.newValueCountryId)
+//         .then(data => setDataDepartment(data))
+//         .catch(err => {
+//           console.log('Error', err);
+//           setDataDepartment([]);
+//         });
+//     }
+//   };
+
+//   // const {
+//   //   values: { countryId },
+//   //   setFieldValue
+//   // } = useFormikContext();
+//   // const [field, meta] = useField(props);
+
+//   // const getDerivedStateFromProps = countryId => {
+//   //   const [prevCountryId, setPrevCountryId] = useState(null);
+//   //   if (countryId !== prevCountryId ) {
+//   //     console.log(prevCountryId);
+//   //     console.log(countryId);
+//   //     fetchNewValues(countryId)
+//   //   }
+
+//   // };
+//   // useLayoutEffect(() => {
+//   //   validateValues();
+//   // });
+//   useEffect(() => {
+//     validateValues();
+//   }, [props.newValueCountryId]);
+//   return (
+//     <div>
+//       {' '}
+//       <select
+//         name={props.name}
+//         value={props.value}
+//         className={props.className}
+//         onChange={props.onChange}
+//         onBlur={props.onBlur}
+//       >
+//         <option value={''}>-- Seleccione --</option>
+//         {dataDepartment.map((aux, id) => {
+//           return (
+//             <option key={id} value={aux.id}>
+//               {aux.name}
+//             </option>
+//           );
+//         })}
+//       </select>{' '}
+//     </div>
+//   );
+// };
 
 export default FormSelect;
